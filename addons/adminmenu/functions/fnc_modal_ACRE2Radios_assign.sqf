@@ -17,7 +17,7 @@ if (_network > -1 && !(_presetName isEqualTo _oldPresetName)) then {
 };
 
 {
-    if (player canAdd _radio) then {
+    if ([player, _radio] call CBA_fnc_canAddItem) then {
         player addItem _radio;
         systemChat format ["[TMF] Added radio: %1", _radio];
     } else {
