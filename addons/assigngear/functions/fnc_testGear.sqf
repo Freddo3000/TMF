@@ -8,7 +8,9 @@ private _cfgVehicles = configFile >> "CfgVehicles";
 private _cfgGlasses = configFile >> "CfgGlasses";
 private _cfgMagazines = configFile >> "CfgMagazines";
 private _warnWeight = getNumber (_test >> "maxWeight");
+#ifdef CHECK_MAXWEIGHT
 private _maxWeight = (getNumber (configFile >> "CfgInventoryGlobalVariable" >> "maxSoldierLoad")) * 0.95; // Add a bit of padding for radios
+#endif
 private _maxWeightKG = ACE_MASSTOKG(_maxWeight);
 
 private _output = [];
@@ -249,6 +251,13 @@ private _loadoutFreespace = [];
             _freespace = [_faction,_role] call _fncTestUnit;
             _loadoutFreespace pushBack _freespace;
             _unit call FUNC(assignGear);
+
+            #ifndef CHECK_MAXWEIGHT
+            if (ACE_MASSTOKG(_weight) >= _warnWeight) then {
+                _output pushBack [1,format["Heavy role %1kg (for: %2 - %3)",ACE_MASSTOKG(_weight),_faction,_role]];
+            };
+            #else
+            // Not needed with the addition of CBA_fnc_canAddItem, keeping it around if things were to change though.
             private _weight = loadAbs _unit; // ACE calculation
 
             if (_weight >= _maxWeight) then {
@@ -258,6 +267,7 @@ private _loadoutFreespace = [];
                     _output pushBack [1,format["Heavy role %1kg (for: %2 - %3)",ACE_MASSTOKG(_weight),_faction,_role]];
                 };
             };
+            #endif
 
         } else {
             _freespace = _loadoutFreespace select (_loadoutsTested find [_faction, _role]);

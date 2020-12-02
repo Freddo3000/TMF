@@ -21,8 +21,8 @@ if (isNil "_unit" || isNil "_items") exitWith {};
 {
     switch true do {
         case (isNil "_x"): {};
-        case (_unit canAddItemToUniform _x): {_unit addItemToUniform _x;};
-        case (_unit canAddItemToVest _x): {_unit addItemToVest _x;};
+        case ([_unit, _x, 1, true, false, false] call CBA_fnc_canAddItem): {_unit addItemToUniform _x;};
+        case ([_unit, _x, 1, false, true, false] call CBA_fnc_canAddItem): {_unit addItemToVest _x;};
         default {_overflow pushBack _x};
     };
 } forEach _items;

@@ -81,20 +81,27 @@ _unit setUnitLoadout (configFile >> 'EmptyLoadout');
             case 9: { // backpackItems
                 {_unit addItemToBackpack _x} forEach _x;
             };
+            #define CANADDTO_VEST(_unit,_x) ([_unit, _x, 1, false, true, false] call CBA_fnc_canAddItem)
+            #define CANADDTO_UNIF(_unit,_x) ([_unit, _x, 1, true, false, false] call CBA_fnc_canAddItem)
             case 10: { // items
-                { // Items try to fill uniform first
-                    switch true do {
-                        case (_unit canAddItemToUniform _x): {_unit addItemToUniform _x;};
-                        case (_unit canAddItemToVest _x): {_unit addItemToVest _x;};
-                        default {_unit addItemToBackpack _x;};
-                    };
-                } forEach _x;
+                if (isPlayer _unit) then {
+                    { // Items try to fill uniform first
+                        switch true do {
+                            case CANADDTO_UNIF(_unit,_x): {_unit addItemToUniform _x;};
+                            case CANADDTO_VEST(_unit,_x): {_unit addItemToVest _x;};
+                            default {_unit addItemToBackpack _x;};
+                        };
+                    } forEach _x;
+                } else {
+                    // Be lazy
+                    {_unit addItem _x} forEach _x;
+                };
             };
             case 11: { // magazines
                 { // Magazines try to fill vest first
                     switch true do {
-                        case (_unit canAddItemToVest _x): {_unit addItemToVest _x;};
-                        case (_unit canAddItemToUniform _x): {_unit addItemToUniform _x;};
+                        case CANADDTO_VEST(_unit,_x): {_unit addItemToVest _x;};
+                        case CANADDTO_UNIF(_unit,_x): {_unit addItemToUniform _x;};
                         default {_unit addItemToBackpack _x;};
                     };
                 } forEach _x;
