@@ -261,7 +261,7 @@ if (!alive player) exitWith {};
 
             // Allocate new radios.
             {
-                if (_unit canAdd _x) then {
+                if ([_unit, _x] call CBA_fnc_canAddItem) then {
                     _unit addItem _x;
                 } else {
                     //Backpacks can be statics/not accept cargo. Though let us try.
@@ -287,7 +287,7 @@ if (!alive player) exitWith {};
                         {
                             private _radioToGive = (_this select 3) select 0;
                             private _unit = (_this select 0);
-                            if (_unit canAdd _radioToGive) then {
+                            if ([_unit, _radioToGive] call CBA_fnc_canAddItem) then {
                                 _unit addItem _radioToGive;
                                 _unit removeAction (_this select 2);
                             } else {
@@ -332,14 +332,26 @@ if (!alive player) exitWith {};
                 // Give addActions to addRadios.
                 if (!isNil QGVAR(radioAddActions)) then {
                     {
-                        private _actionid_action = _unit addAction [format["<t color='#c3d633'>[Radios] Give myself a %1 radio (check your inventory for space)</t>",getText (configfile >> "CfgWeapons" >> _x >> "displayName")],
-                                                            format["if ((_this select 0) canAdd '%1') then { (_this select 0) addItem '%1'; (_this select 0) removeAction (_this select 2); } else { systemChat '[TMF ACRE2] No space for radios'; };",_x],0,0,false,true,"","(_target == _this)"];
-                        [_actionid_action,_unit] spawn {
-                            sleep 300;
-                            if (!isNull (_this select 1)) then {
-                                (_this select 1) removeAction (_this select 0);
-                            };
-                        };
+                        private _radioDisplayName = [_x] call acre_api_fnc_getDisplayName;
+                        private _actionID = [[
+                            format["<t color='#c3d633'>[Radios] Give myself a %1 radio (check your inventory for space)</t>", _radioDisplayName],
+                            {
+                                params ["_target", "_caller", "_actionId", "_arguments"];
+                                _arguments params ["_radio", "_radioDisplayName"];
+                                if ([_caller, _radio] call CBA_fnc_canAddItem) then {
+                                    [_caller, _radio, true] call CBA_fnc_addItem;
+                                    [format ["%1 received an %2 via addAction", name _caller, _radioDisplayName], false, "[TMF ACRE2]"] call EFUNC(adminmenu,log);
+                                } else {
+                                    systemChat '[TMF ACRE2] No space for radios';
+                                };
+                            },
+                            [_x, _radioDisplayName],
+                            0,
+                            false,
+                            true
+                        ]] call CBA_fnc_addPlayerAction;
+
+                        [CBA_fnc_removePlayerAction, _actionID, 300] call CBA_fnc_waitAndExecute;
                     } forEach GVAR(radioAddActions);
                 };
 
