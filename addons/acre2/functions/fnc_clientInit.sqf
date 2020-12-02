@@ -338,8 +338,10 @@ if (!alive player) exitWith {};
                             {
                                 params ["_target", "_caller", "_actionId", "_arguments"];
                                 _arguments params ["_radio", "_radioDisplayName"];
+
                                 if ([_caller, _radio] call CBA_fnc_canAddItem) then {
                                     [_caller, _radio, true] call CBA_fnc_addItem;
+
                                     [format ["%1 received an %2 via addAction", name _caller, _radioDisplayName], false, "[TMF ACRE2]"] call EFUNC(adminmenu,log);
                                 } else {
                                     systemChat '[TMF ACRE2] No space for radios';
