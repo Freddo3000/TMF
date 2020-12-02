@@ -36,7 +36,7 @@ if (count _radios > 1) exitWith {
 private _radioType = configName (_radios # 0);
 private _radioName = getText ((_radios # 0) >> "name");
 
-if (CURUNIT canAdd _radioType) then {
+if ([CURUNIT, _radioType] call CBA_fnc_canAddItem) then {
     CURUNIT addItem _radioType;
     systemChat FORMAT_1("TMF: Added %1 to inventory", _radioName);
 } else {
