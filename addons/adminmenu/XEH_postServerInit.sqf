@@ -2,15 +2,6 @@
 
 #include "initKeybinds.sqf"
 
-if (isTMF) then {
-    GVAR(disconnectEH) = addMissionEventHandler ["HandleDisconnect",{
-        params ["_unit", "_id", "_uid", "_name"];
-        if !(typeOf _unit isEqualTo QEGVAR(spectator,unit)) then {
-            [format ["Player disconnected while not spectator: %1", _name], true] call FUNC(log);
-        };
-    }];
-};
-
 // Trigger Hunt.
 [QGVAR(hunt), {
     // Find player side

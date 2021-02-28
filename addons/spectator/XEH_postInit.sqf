@@ -18,12 +18,40 @@ if (isServer) then {
 
     publicVariable QGVAR(group);
 
-    // Clean up disconnected spectator units.
-    private _spectator_disconnect_eh = addMissionEventHandler ["HandleDisconnect",{
-        params ["_unit"];
-        if (_unit isKindOf QGVAR(unit)) then { deleteVehicle _unit; };
-        false;
-    }];
+    [{
+        GVAR(dcEH) = addMissionEventHandler ["HandleDisconnect",{
+            params ["_unit"];
+            private ["_rtrn"];
+
+            // Clean up disconnected spectator units.
+            if (_unit isKindOf QGVAR(unit)) then {
+                deleteVehicle _unit;
+                _rtrn = false;
+            } else {
+
+                if GVAR(active) then {
+                    // Preserve hidden DC units if AI slots are disabled
+                    if (GVAR(preserveDCUnits) && ((getMissionConfigValue ["DisabledAI", false]) in [1,true])) then {
+                        hideObjectGlobal _unit;
+                        moveOut _unit;
+                        _unit setPos ((getPos _unit) select [0, 2]); // Move to ground
+                        _unit setVelocity [0,0,0];
+                        _unit setVariable [QGVAR(preservedDC), true, true];
+                        [format ["Preserved DC unit: %1", name _unit], false, "Spectator"] call EFUNC(adminmenu,log);
+                        _rtrn = true;
+                    } else {
+
+                        [format ["Unit disconnected while not spectator: %1", name _unit], true, "Spectator"] call EFUNC(adminmenu,log);
+                        _rtrn = false;
+                    };
+                };
+            };
+
+            // exitWith does not work with this EH
+            _rtrn
+        }];
+    // Add EH last to ensure effect
+    }] call CBA_fnc_execNextFrame;
 
     [{
         {

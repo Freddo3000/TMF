@@ -17,7 +17,7 @@ class cfgPatches
 
 class CfgRespawnTemplates
 {
-    class TMF_Spectator
+    class ADDON
     {
         displayName = "TMF Spectator";
         onPlayerRespawn  = QFUNC(init);

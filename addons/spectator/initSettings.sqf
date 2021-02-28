@@ -47,3 +47,11 @@
     true,
     1
 ] call CBA_fnc_addSetting;
+[
+    QGVAR(preserveDCUnits),
+    "CHECKBOX",
+    ["Preserve disconnected units", "Hides disconnected units if AI slots are disabled instead of killing them. Player can then rejoin the same slot."],
+    ["TMF", "Spectator"],
+    false,
+    1
+] call CBA_fnc_addSetting;

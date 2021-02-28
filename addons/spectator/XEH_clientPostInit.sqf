@@ -7,6 +7,12 @@ LOG("Client PostInit started");
     [{
         if (player isKindOf QGVAR(unit)) exitWith {};
 
+        // Check if player is preserved DC unit
+        if (player getVariable [QGVAR(preservedDC), false]) exitWith {
+            [player, false] remoteExecCall ["hideObjectGlobal", 2];
+            [format ["Player JIP to preserved DC unit: %1", profileName],false,"Spectator"] call EFUNC(adminmenu,log);
+        };
+
         // Check if JIP is allowed, if not then kill the JIP player.
         private _isAIunit = player getVariable [QGVAR(isJIPable),false];
         private _isJIPAllowed = switch (GVAR(isJIPAllowed)) do {
@@ -14,15 +20,11 @@ LOG("Client PostInit started");
             case 1: {true};
             case 2: {[] call EFUNC(safestart,isActive)};
         };
-        private _templateActive = (
-            "TMF_Spectator" in getMissionConfigValue ["respawnTemplates",[]] &&
-            1 isEqualTo getMissionConfigValue ["Respawn",-1]
-        );
 
-        TRACE_5("Check JIP conditions",_templateActive, _isJIPAllowed, _isAIunit, CBA_missionTime, didJIP);
-        TRACE_1("Check JIP conditions 2",(_templateActive && !(_isJIPAllowed || _isAIunit) && CBA_missionTime > 5 && didJIP));
+        TRACE_5("Check JIP conditions",GVAR(active), _isJIPAllowed, _isAIunit, CBA_missionTime, didJIP);
+        TRACE_1("Check JIP conditions 2",(GVAR(active) && !(_isJIPAllowed || _isAIunit) && CBA_missionTime > 5 && didJIP));
 
-        if (_templateActive && !(_isJIPAllowed || _isAIunit) && CBA_missionTime > 5 && didJIP) then {
+        if (GVAR(active) && !(_isJIPAllowed || _isAIunit) && CBA_missionTime > 5 && didJIP) then {
             LOG("JIP: True");
 
             [{!isNull player && {!([] call BIS_fnc_isLoading)}},{
