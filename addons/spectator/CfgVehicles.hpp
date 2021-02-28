@@ -19,7 +19,7 @@ class CfgVehicles
         scope = 2;
         displayName = "Spectator: Show Objective";
         category = "Teamwork";
-        icon = "\x\tmf\addons\common\UI\logo_tmf_small_ca.paa";
+        icon = QPATHTOEF(common,UI\logo_tmf_small_ca.paa);
         function = QFUNC(objectiveModule);
         functionPriority = 0;
         isGlobal = 2;
