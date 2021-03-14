@@ -2,11 +2,16 @@
 params ["_veh"];
 disableSerialization;
 private _color = [1,1,1,1];
-private _control = (uiNamespace getVariable [QGVAR(display),displayNull]) ctrlCreate [QGVAR(EntityTag), -1];
+private _control = (uiNamespace getVariable [QGVAR(display),displayNull]) ctrlCreate [QGVAR(Tag), -1];
 
 _control ctrlShow false;
 
-[_control,"\a3\ui_f\data\map\Markers\military\box_CA.paa",_color] call FUNC(controlSetPicture);
+TAG_ICON_CTRL(_control) ctrlSetText VEHICLE_ICON;
+TAG_ICON_CTRL(_control) ctrlSetTextColor _color;
+TAG_NAME_CTRL(_control) ctrlSetText name _unit;
+TAG_DETAIL_CTRL(_control) ctrlSetText "";
+
+[_control,VEHICLE_ICON,_color] call FUNC(controlSetPicture);
 [_control,getText (configFile >> "CfgVehicles" >> typeof _veh >> "displayName")] call FUNC(controlSetText);
 
 _veh setVariable [QGVAR(tagControl), [_control]];

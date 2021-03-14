@@ -9,12 +9,13 @@ if (GVAR(showMap) || !GVAR(tags)) exitWith {
 cameraEffectEnableHUD true;
 private _camPos = getPosVisual GVAR(camera);
 private _viewDistance = ((getObjectViewDistance) select 0);
-private _screenSize = [(0.04 * safezoneW), (0.01 * safezoneH)];
+private _ctrlSize = [TAG_W / 2, TAG_ICON_H / 2];
 
 {
     // grab the group infomation cache
     private _grpCache = _x getVariable [QGVAR(grpCache),[[0,0,0],[1,1,1,1],true]];
     _grpCache params ["_grpPos","_color","_isAI"];
+
     // If we don't have a average pos for the group, or the time since the last the update as expired, generate a new one
     if (count _grpPos <= 0) then {
         _grpCache = ([_x] call FUNC(updateGroupCache));
@@ -37,15 +38,15 @@ private _screenSize = [(0.04 * safezoneW), (0.01 * safezoneH)];
 
     if (_render) then {
         _control ctrlShow true;
-        (_control controlsGroupCtrl 2) ctrlShow (!_isAI && _distToCam <= 600); // Nametag
-        (_control controlsGroupCtrl 3) ctrlShow (!_isAI && _distToCam <= 300); // Detail
+        TAG_NAME_CTRL(_control) ctrlShow (!_isAI && _distToCam <= 600); // Nametag
+        TAG_DETAIL_CTRL(_control) ctrlShow (!_isAI && _distToCam <= 300); // Detail
 
-        _control ctrlSetPosition [_screenPos # 0 - _screenSize # 0, _screenPos # 1 - _screenSize # 1];
+        _control ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
         _control ctrlCommit 0;
     } else {
         _control ctrlShow false;
     };
-    
+
     // Unit / vehicle tags
     {
         private _isVeh = !isNull (objectParent _x);
@@ -74,19 +75,12 @@ private _screenSize = [(0.04 * safezoneW), (0.01 * safezoneH)];
                         _x setVariable [QGVAR(fired), _hasFired-1];
                     };
 
-                    [_control,"",_unitColor] call FUNC(controlSetPicture);
-
                     _control ctrlShow true;
+                    TAG_ICON_CTRL(_control) ctrlSetTextColor _unitColor;
+                    TAG_NAME_CTRL(_control) ctrlShow (isPlayer _x && _distToCam <= 300);
+                    TAG_DETAIL_CTRL(_control) ctrlShow (isPlayer _x && _distToCam <= 150);
 
-                    private _isPlayer = isPlayer _x;
-
-                    (_control controlsGroupCtrl 2) ctrlShow (_isPlayer && _distToCam <= 300); // NameTag
-                    (_control controlsGroupCtrl 3) ctrlShow (_isPlayer && _distToCam <= 150); // Detail
-
-                    // Screenpos already has 2 elements
-                    
-                    _control ctrlSetPosition [_screenPos # 0 - _screenSize # 0, _screenPos # 1 - _screenSize # 1];
-
+                    _control ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
                     _control ctrlCommit 0;
                 }
                 else {
@@ -124,19 +118,18 @@ private _screenSize = [(0.04 * safezoneW), (0.01 * safezoneH)];
             _color = [0.8,0.8,0.8,1];
             _x setVariable [QGVAR(fired), _hasFired-1];
         };
-        [_control,"",_color] call FUNC(controlSetPicture);
 
-        private _commanderName = name (effectiveCommander _x);
-
-        [_control,format ["%1 [%2]",_commanderName,count crew _x],[],true] call FUNC(controlSetText);
+        TAG_ICON_CTRL(_control) ctrlSetTextColor _color;
+        TAG_DETAIL_CTRL(_control) ctrlSetText format [
+            "%1 [%2]",
+            name (effectiveCommander _x),
+            count crew _x
+        ];
+        TAG_NAME_CTRL(_control) ctrlShow (_distToCam <= 300);
+        TAG_DETAIL_CTRL(_control) ctrlShow ((crew _x findIf {isPlayer _x}) >= 0 && {_distToCam <= 150});
 
         _control ctrlShow true;
-
-        private _hasPlayers = (crew _x findIf {isPlayer _x}) >= 0;
-        (_control controlsGroupCtrl 2) ctrlShow (_distToCam <= 300);
-        (_control controlsGroupCtrl 3) ctrlShow (_hasPlayers && {_distToCam <= 150});
-
-        _control ctrlSetPosition [_screenPos # 0 - _screenSize # 0, _screenPos # 1 - _screenSize # 1];
+        _control ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
         _control ctrlCommit 0;
     }
     else {

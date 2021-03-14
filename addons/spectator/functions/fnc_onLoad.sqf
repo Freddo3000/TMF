@@ -6,32 +6,39 @@ GVAR(unitUpdate) = -1; // Force unit list to update.
 GVAR(vehicles) = [];
 with uiNamespace do {
     GVAR(display) = _display;
-    GVAR(unitlabel) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_UNITLABEL;
-    GVAR(unitlist) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_UNITLIST;
+    GVAR(unitlabel) = _display displayCtrl IDC_TMF_SPECTATOR_UNITLABEL;
+    GVAR(unitlist) = _display displayCtrl IDC_TMF_SPECTATOR_UNITLIST;
 
-    GVAR(vision) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_VISION;
+    GVAR(vision) = _display displayCtrl IDC_TMF_SPECTATOR_VISION;
 
-    GVAR(filter) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_FILTER;
-    GVAR(side) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_BUTTON;
-    GVAR(tagsbutton) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_TAGS;
-    GVAR(view) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_VIEW;
-    GVAR(mute) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_MUTE;
-    GVAR(radio) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_RADIO;
-    GVAR(map) = _display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_MAP;
-    GVAR(compass) = [_display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_COMPASSLEFT,_display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_COMPASS,_display displayCtrl IDC_SPECTATOR_TMF_SPECTATOR_COMPASSRight];
+    GVAR(filter) = _display displayCtrl IDC_TMF_SPECTATOR_FILTER;
+    GVAR(side) = _display displayCtrl IDC_TMF_SPECTATOR_BUTTON;
+    GVAR(tagsbutton) = _display displayCtrl IDC_TMF_SPECTATOR_TAGS;
+    GVAR(view) = _display displayCtrl IDC_TMF_SPECTATOR_VIEW;
+    GVAR(mute) = _display displayCtrl IDC_TMF_SPECTATOR_MUTE;
+    GVAR(radio) = _display displayCtrl IDC_TMF_SPECTATOR_RADIO;
+    GVAR(map) = _display displayCtrl IDC_TMF_SPECTATOR_MAP;
+    GVAR(compass) = _display displayCtrl IDC_TMF_SPECTATOR_COMPASS;
 
-    private _labelParent = _display displayCtrl 2300;
+    private _labelParent = _display displayCtrl IDC_TMF_SPECTATOR_KILLIST;
     GVAR(labels) = [
-        _labelParent controlsGroupCtrl 6,
-        _labelParent controlsGroupCtrl 7,
-        _labelParent controlsGroupCtrl 8,
-        _labelParent controlsGroupCtrl 9,
-        _labelParent controlsGroupCtrl 10,
-        _labelParent controlsGroupCtrl 11
+        _labelParent controlsGroupCtrl IDC_TMF_SPECTATOR_KILLIST_L1,
+        _labelParent controlsGroupCtrl IDC_TMF_SPECTATOR_KILLIST_L2,
+        _labelParent controlsGroupCtrl IDC_TMF_SPECTATOR_KILLIST_L3,
+        _labelParent controlsGroupCtrl IDC_TMF_SPECTATOR_KILLIST_L4,
+        _labelParent controlsGroupCtrl IDC_TMF_SPECTATOR_KILLIST_L5,
+        _labelParent controlsGroupCtrl IDC_TMF_SPECTATOR_KILLIST_L6
     ];
 
     GVAR(map) ctrlShow (missionNamespace getVariable [QGVAR(showMap),false]);
     GVAR(map) mapCenterOnCamera false;
+
+    GVAR(mouseHandlers) = [
+        ["MouseButtonDown", {["MouseButtonDown", _this] call FUNC(mouseHandler)}] call CBA_fnc_addDisplayHandler,
+        ["MouseButtonUp", {["MouseButtonUp", _this] call FUNC(mouseHandler)}] call CBA_fnc_addDisplayHandler,
+        ["MouseZChanged", {["MouseZChanged", _this] call FUNC(mouseHandler)}] call CBA_fnc_addDisplayHandler,
+        ["MouseMoving", {["MouseMoving", _this] call FUNC(mouseHandler)}] call CBA_fnc_addDisplayHandler
+    ];
 
 };
 
@@ -39,8 +46,8 @@ with uiNamespace do {
 
 
 if(!GVAR(canSpectateAllSides)) then {
-    GVAR(sides) = [tmf_spectator_entryside];
-    GVAR(sides_button_mode) = [[tmf_spectator_entryside], []];
+    GVAR(sides) = [GVAR(EntrySide)];
+    GVAR(sides_button_mode) = [[GVAR(EntrySide)], []];
     GVAR(sides_button_strings) = ["SHOWING YOUR SIDE", "NONE"];
 };
 
@@ -78,8 +85,8 @@ if (isClass(configFile >> "CfgPatches" >> "acre_main")) then {
     GVAR(mute_modifers) = (_data select 5) select 1;
 
     // Add all languages
-    if (!isNil "tmf_acre2_languagesTable") then {
-        private _languages = tmf_acre2_languagesTable apply {_x select 0};
+    if (!isNil QEGVAR(acre2,languagesTable)) then {
+        private _languages = EGVAR(acre2,languagesTable) apply {_x select 0};
         _languages call acre_api_fnc_babelSetSpokenLanguages;
     };
 }

@@ -26,7 +26,26 @@ class CfgRespawnTemplates
 };
 #include "autotest.hpp"
 #include "CfgEventHandlers.hpp"
-#include "display3DEN.hpp"
-#include "dialog.hpp"
 #include "CfgVehicles.hpp"
-#include "tags.hpp"
+
+#include "\a3\3DEN\UI\macros.inc"
+#include "\a3\3DEN\UI\macroexecs.inc"
+#include "\a3\3den\UI\resincl.inc"
+
+class ctrlStatic;
+class ctrlStructuredText;
+class ctrlControlsGroupNoScrollbars;
+class RscStandardDisplay;
+class ctrlButtonPictureKeepAspect;
+class ctrlMap;
+class ctrlDefaultText;
+class ctrlTree: ctrlDefaultText {
+    class ScrollBar;
+};
+class ctrlControlsGroup;
+class RscHorizontalCompass;
+class ctrlStaticPicture;
+class ctrlStaticPictureKeepAspect;
+
+#include "dialog.hpp"
+#include "tag.hpp"

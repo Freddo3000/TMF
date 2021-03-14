@@ -6,12 +6,9 @@ GVAR(mPos) params ["_x","_y"];
 GVAR(mButtons) params ["_leftButton","_rightButton"];
 GVAR(lmPos) params ["_lx","_ly"];
 
-private _dx = _lx - _x;
-private _dy = _ly - _y;
-
 if(_rightButton && !_leftButton) then {
     GVAR(followcam_angle) params ["_ax","_ay"];
-    GVAR(followcam_angle) = [(_ax - (_dx*360)),(_ay + (_dy*180)) min 89 max -89];
+    GVAR(followcam_angle) = [(_ax - _x),(_ay + _y) min 89 max -89];
 };
 
 private _oldcam = GVAR(camera);

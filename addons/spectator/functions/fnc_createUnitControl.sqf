@@ -3,13 +3,18 @@ params ["_unit"];
 disableSerialization;
 private _color = (side group _unit) call CFUNC(sideToColor);
 
-private _control = (uiNamespace getVariable [QGVAR(display),displayNull]) ctrlCreate [QGVAR(EntityTag), -1];
+private _control = (uiNamespace getVariable [QGVAR(display),displayNull]) ctrlCreate [QGVAR(Tag), -1];
 
 _control ctrlShow false;
 
-[_control,"\A3\ui_f\data\map\markers\military\triangle_CA.paa",_color] call FUNC(controlSetPicture);
-[_control,name _unit] call FUNC(controlSetText);
-[_control,"",[],true] call FUNC(controlSetText);
+TAG_ICON_CTRL(_control) ctrlSetText "\A3\ui_f\data\map\markers\military\triangle_CA.paa";
+TAG_ICON_CTRL(_control) ctrlSetTextColor _color;
+TAG_NAME_CTRL(_control) ctrlSetText name _unit;
+TAG_DETAIL_CTRL(_control) ctrlSetText "";
+
 _unit setVariable [QGVAR(tagControl), [_control]];
 _control setVariable [QGVAR(attached),_unit];
+
 GVAR(controls) pushBack _control;
+
+_control

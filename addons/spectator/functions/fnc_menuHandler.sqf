@@ -20,11 +20,14 @@ switch (_button) do {
       GVAR(sides) = GVAR(sides_button_mode) select GVAR(sides_button_state);
 
       if(count GVAR(sides) == 1) then {
-            _control ctrlSetTextColor ((GVAR(sides) select 0) call CFUNC(sideToColor));
+            private _side = GVAR(sides) select 0;
+            _control ctrlSetTextColor (_side call CFUNC(sideToColor));
+            _control ctrlSetText (_side call CFUNC(sideToTexture));
       }
       else
       {
           _control ctrlSetTextColor [1,1,1,1];
+          _control ctrlSetText (sideLogic call CFUNC(sideToTexture));
       };
 
       _control ctrlSetTooltip (GVAR(sides_button_strings) select GVAR(sides_button_state) );
