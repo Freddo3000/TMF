@@ -117,6 +117,13 @@ class GVAR(dialog) : RscStandardDisplay {
             idc = IDC_TMF_SPECTATOR_MAP;
             onDraw = QUOTE(_this call FUNC(drawMap));
             onMouseButtonDown = QUOTE(_this call FUNC(onMapClick));
+			// Fix Legend, same values as RscMapMain
+			class Legend : Legend {
+				x = SafeZoneX + (((safezoneW / safezoneH) min 1.2) / 40);
+				y = SafeZoneY + safezoneH - 4.5 * ((((safezoneW / safezoneH) min 1.2) / 1.2) / 25);
+				w = 10 * (((safezoneW / safezoneH) min 1.2) / 40);
+				h = 3.5 * ((((safezoneW / safezoneH) min 1.2) / 1.2) / 25);
+			};
         };
         class GVAR(UnitList): ctrlTree {
             idc = IDC_TMF_SPECTATOR_UNITLIST;
@@ -137,10 +144,11 @@ class GVAR(dialog) : RscStandardDisplay {
             multiselectEnabled = 0;
             // Scrollbar configuration
             class ScrollBar: ScrollBar {
+				color[] = {0,0,0,0};
                 width = 0;
                 height = 0;
             };
-            maxHistoryDelay = 9999999; // Time since last keyboard type search to reset it
+            maxHistoryDelay = 1e+6; // Time since last keyboard type search to reset it
         };
         class GVAR(KillList) : ctrlControlsGroupNoScrollbars {
             idc = IDC_TMF_SPECTATOR_KILLIST;

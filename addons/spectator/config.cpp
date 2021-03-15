@@ -37,7 +37,10 @@ class ctrlStructuredText;
 class ctrlControlsGroupNoScrollbars;
 class RscStandardDisplay;
 class ctrlButtonPictureKeepAspect;
-class ctrlMap;
+class ctrlDefault;
+class ctrlMap : ctrlDefault {
+    class Legend;
+};
 class ctrlDefaultText;
 class ctrlTree: ctrlDefaultText {
     class ScrollBar;

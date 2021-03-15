@@ -20,7 +20,6 @@ class GVAR(Tag): ctrlControlsGroupNoScrollbars {
         };
         class GVAR(Name): ctrlStatic {
             idc = IDC_TMF_SPECTATOR_TAG_NAME;
-            text = "";
             style = ST_CENTER;
             x = 0;
             y = TAG_ICON_H;
@@ -31,10 +30,7 @@ class GVAR(Tag): ctrlControlsGroupNoScrollbars {
         };
         class GVAR(Detail): GVAR(Name) {
             idc = IDC_TMF_SPECTATOR_TAG_DETAIL;
-            text = ""; //--- ToDo: Localize;
-            x = -10 * GRID_W;
             y = TAG_ICON_H + GRID_H * SIZE_M;
-            w = TAG_WIDTH;
             h = GRID_H * SIZE_S;
             sizeEx = SIZEEX_PURISTA(SIZEEX_S);
         };
