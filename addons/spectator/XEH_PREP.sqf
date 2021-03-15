@@ -12,7 +12,6 @@ PREP(getGroupClusters);
 PREP(objectiveModule);
 PREP(onFired);
 PREP(drawTags);
-PREP(onScreen);
 PREP(toggleUI);
 PREP(init);
 PREP(isOpen);
