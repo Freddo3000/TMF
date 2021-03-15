@@ -41,9 +41,9 @@ switch (_type) do {
         if (GVAR(mode) in [FOLLOWCAM, FREECAM]) then {
             private _target = _control getVariable [QGVAR(attached), objNull];
             if (_target isEqualType grpNull) then {
-                _target = leader grpNull;
+                _target = leader _target;
             } else {
-                _target = (crew _target) select 0
+                _target = effectiveCommander _target;
             };
             [_target] call FUNC(setTarget);
         };
