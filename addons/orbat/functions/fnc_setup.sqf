@@ -198,11 +198,6 @@ _fnc_processOrbatTrackerRawData = {
                 if (_markerEntry isEqualType "") then { _markerEntry = call compile _markerEntry; };
                 if (count _markerEntry > 0) then {
                     _markerEntry params ["_textureC", "_markerNameC", ["_texture2C", ""]];
-
-                    // TODO: Move this somewhere else, such as to the vehicle attribute
-                    if (isNil {_entity getVariable QGVARMAIN(VehicleMarker)}) then {
-                        _entity setVariable [QGVARMAIN(VehicleMarker), _markerEntry];
-                    };
                     if (_textureC != "") then {
                         private _newLine = [];
                         if (_isVeh) then {

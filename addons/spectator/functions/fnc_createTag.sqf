@@ -35,7 +35,7 @@ _ctrl ctrlShow false;
 switch true do {
 	case IS_GROUP(_thing): {
         // Create a group marker
-		private _twGrpMkr = [_thing] call EFUNC(orbat,getGroupMarkerData);
+		private _twGrpMkr = [_thing] call EFUNC(orbat,getMarkerData);
 
 		if (count _twGrpMkr == 3) then {
             // Group has a TMF Orbat marker
@@ -60,8 +60,7 @@ switch true do {
 	};
 	case (_thing isKindOf "CAManBase"): {
 
-        private _markerEntry = _thing getVariable ["TMF_SpecialistMarker",[]];
-        if IS_STRING(_markerEntry) then { _markerEntry = call compile _markerEntry; };
+        private _markerEntry = [_thing] call EFUNC(orbat,getMarkerData);
 
         if (count _markerEntry >= 2 && {_markerEntry isNotEqualTo ["", ""]}) then {
             // Unit has a specialist marker
@@ -71,6 +70,7 @@ switch true do {
             TAG_ICON_CTRL(_ctrl) ctrlSetTextColor [1,1,1,1];
             TAG_NAME_CTRL(_ctrl) ctrlSetText name _thing;
             TAG_DETAIL_CTRL(_ctrl) ctrlSetText _markerNameC;
+            _ctrl setVariable [QGVAR(colorForced), true];
         } else {
             TAG_ICON_CTRL(_ctrl) ctrlSetText UNIT_ICON;
             TAG_ICON_CTRL(_ctrl) ctrlSetTextColor ((side _thing) call CFUNC(sideToColor));
@@ -82,14 +82,14 @@ switch true do {
 	};
 	default {
         // Assume generic vehicle
-        private _markerEntry = _thing getVariable [QGVARMAIN(VehicleMarker),[]];
-        if IS_STRING(_markerEntry) then { _markerEntry = call compile _markerEntry; };
+        private _markerEntry = [_thing] call EFUNC(orbat,getMarkerData);
 
         if (count _markerEntry >= 2 && {_markerEntry isNotEqualTo ["", ""]}) then {
-            _markerEntry params ["_textureC", "_markerNameC"];
+            _markerEntry params [["_textureC", ""], ["_markerNameC", ""]];
 
             TAG_ICON_CTRL(_ctrl) ctrlSetText _textureC;
             TAG_ICON_CTRL(_ctrl) ctrlSetTextColor [1,1,1,1];
+            _ctrl setVariable [QGVAR(colorForced), true];
         } else {
             TAG_ICON_CTRL(_ctrl) ctrlSetText VEHICLE_ICON;
             TAG_ICON_CTRL(_ctrl) ctrlSetTextColor ((side _thing) call CFUNC(sideToColor));

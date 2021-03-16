@@ -34,7 +34,7 @@ switch true do {
     };
     case IS_OBJECT(_thing): {
         // Vehicle marker
-        private _rtrn = _thing getVariable [QGVARMAIN(VehicleMarker),[]];
+        _rtrn = _thing getVariable [QGVARMAIN(groupMarker),[]];
         if IS_STRING(_rtrn) then { _rtrn = call compile _rtrn; };
     };
 };
