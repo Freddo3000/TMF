@@ -18,7 +18,7 @@ params ["_grp"];
 
 disableSerialization;
 
-private _twGrpMkr = [_grp] call EFUNC(orbat,getGroupMarkerData);
+private _twGrpMkr = [_grp] call EFUNC(orbat,getMarkerData);
 
 private _grpName = groupID _grp;
 private _icon = "\A3\ui_f\data\map\markers\nato\b_unknown.paa";

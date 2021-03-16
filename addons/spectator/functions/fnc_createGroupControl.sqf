@@ -5,7 +5,7 @@ disableSerialization;
 private _control = (uiNamespace getVariable [QGVAR(display),displayNull]) ctrlCreate [QGVAR(Tag), -1];
 _control ctrlShow false;
 
-private _twGrpMkr = [_x] call EFUNC(orbat,getGroupMarkerData);
+private _twGrpMkr = [_x] call EFUNC(orbat,getMarkerData);
 if (count _twGrpMkr == 3) then {
     _twGrpMkr params ["_grpTexture","_gname"];
 

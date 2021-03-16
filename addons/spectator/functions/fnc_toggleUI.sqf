@@ -4,7 +4,11 @@ disableSerialization;
 GVAR(showUI) = !GVAR(showUI);
 private _display = uiNamespace getVariable [QGVAR(display),displayNull];
 
-{ (_display displayCtrl _x) ctrlShow GVAR(showUI); } forEach GVAR(interfaceControls);
+{
+    _x ctrlShow GVAR(showUI);
+} forEach allControls _display;
+
+(uiNamespace getVariable [QGVAR(map), controlNull]) ctrlShow GVAR(showMap);
 
 if (!isClass(configFile >> "CfgPatches" >> "acre_main")) then { // Hide mute button if we dont need it. implement variable..
     (uiNamespace getVariable [QGVAR(mute), controlNull]) ctrlShow GVAR(showUI);

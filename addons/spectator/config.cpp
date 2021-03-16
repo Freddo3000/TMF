@@ -28,6 +28,8 @@ class CfgRespawnTemplates
 #include "CfgEventHandlers.hpp"
 #include "CfgVehicles.hpp"
 
+#include "tagFsm.fsm"
+
 #include "\a3\3DEN\UI\macros.inc"
 #include "\a3\3DEN\UI\macroexecs.inc"
 #include "\a3\3den\UI\resincl.inc"

@@ -75,7 +75,7 @@ if (_ourIdx == -1) then {
             _type = _firstEntry select 0;
         };
     };
-    
+
     // Use faction
     private _condition = (side _unit) call EFUNC(common,sideToNum);
     _groups = allGroups select {side _x == side _unit};
@@ -84,10 +84,10 @@ if (_ourIdx == -1) then {
         _condition = _faction;
         _groups = allGroups select {faction (leader _x) == _faction};
     };
-    
+
     // Sub groups won't exist so ensure they are invalid.
     {_x setVariable ["TMF_OrbatParent",-1]} forEach _groups;
-    
+
     private _newEntry = [_condition,[[0,"","","","Platoon",0],[]]];
     _ourIdx = GVAR(orbatRawData) pushBack _newEntry;
 };
@@ -101,11 +101,11 @@ private _reserveId = (_ourData select 0) select 0;
 private _validParents = [];
 private _fnc_findValidParents = {
     if (count _this == 0) exitWith {false};
-    
+
     _this params ["_data", ["_children",[]]];
     _data params ["_uniqueID"];
     _validParents pushBackUnique _uniqueID;
-  
+
     {
         _x call _fnc_findValidParents;
     } forEach _children;
@@ -126,7 +126,7 @@ private _playableUnits = (playableUnits+switchableUnits);
         } else {
             _toPlace pushBack [_reserveId, _x];
         };
-        
+
         {
             //Units use same ORABT parent as their group
             //_var = _x getVariable ["TMF_OrbatParent",-1];
@@ -153,24 +153,24 @@ private _playableUnits = (playableUnits+switchableUnits);
 private _fnc_processOrbatTrackerRawData = {
     if (count _this == 0) exitWith {false};
     private _added = false;
-    
+
     _this params ["_data", ["_children",[]]];
     _data params ["_uniqueID", "_markerName", "_texture1", "_texture2"];
-    
+
     //find uniquID in to place
     {
         if (_x select 0 == _uniqueID) exitWith {
             _added = true;
         };
     } forEach _toPlace;
-    
+
 
     {
         if (_x call _fnc_processOrbatTrackerRawData) then { _added = true;};
     } forEach _children;
-    
+
     _data pushBack _added;
-    
+
     _added;
 };
 
@@ -180,15 +180,15 @@ _ourData call _fnc_processOrbatTrackerRawData;
 // [NODE,[NODE,CHILD],[NODE],[NODE]]
 _fnc_processOrbatTrackerRawData = {
     if (count _this == 0) exitWith {[]};
-    
+
     params ["_data", "_children"];
     _data params ["_uniqueID", ["_markerName",""], ["_texture1",""], ["_texture2", ""], ["_fullName",""],"", "_toAdd"];
-    
-    
+
+
     if (!_toAdd) exitWith {[]};
-    
+
     private _createdChildren = [];
-    
+
     {
         _x params ["_id", "_entity"];
         if (_id == _uniqueID) then {
@@ -198,6 +198,11 @@ _fnc_processOrbatTrackerRawData = {
                 if (_markerEntry isEqualType "") then { _markerEntry = call compile _markerEntry; };
                 if (count _markerEntry > 0) then {
                     _markerEntry params ["_textureC", "_markerNameC", ["_texture2C", ""]];
+
+                    // TODO: Move this somewhere else, such as to the vehicle attribute
+                    if (isNil {_entity getVariable QGVARMAIN(VehicleMarker)}) then {
+                        _entity setVariable [QGVARMAIN(VehicleMarker), _markerEntry];
+                    };
                     if (_textureC != "") then {
                         private _newLine = [];
                         if (_isVeh) then {
@@ -227,7 +232,7 @@ _fnc_processOrbatTrackerRawData = {
     } forEach _toPlace;
     _toPlace = _toPlace - [-1];
 
-    
+
     {
         private _childData = (_x call _fnc_processOrbatTrackerRawData);
         if (count _childData > 0) then {

@@ -1,7 +1,7 @@
 #include "\x\tmf\addons\spectator\script_component.hpp"
-if (!([] call FUNC(isOpen))) exitWith {};
-if (GVAR(showMap) || !GVAR(tags)) exitWith {
-    {_x ctrlShow false} forEach GVAR(controls);
+
+if (GVAR(showMap) || !GVAR(tagsEnabled)) exitWith {
+    {_x ctrlShow false} forEach GVAR(tags);
 };
 
 
@@ -12,132 +12,83 @@ private _viewDistance = ((getObjectViewDistance) select 0);
 private _ctrlSize = [TAG_W / 2, TAG_ICON_H / 2];
 
 {
-    // grab the group infomation cache
-    private _grpCache = _x getVariable [QGVAR(grpCache),[[0,0,0],[1,1,1,1],true]];
-    _grpCache params ["_grpPos","_color","_isAI"];
-
-    // If we don't have a average pos for the group, or the time since the last the update as expired, generate a new one
-    if (count _grpPos <= 0) then {
-        _grpCache = ([_x] call FUNC(updateGroupCache));
-        _grpPos = _grpCache select 1; // update pos ASAP
+    private _attached = _x getVariable [QGVAR(attached), objNull];
+    if (isNull _attached) then {
+        ctrlDelete _x;
     };
+    private _tagType = _x getVariable [QGVAR(tagType), -1];
 
-    // check if the average pos is on the screen
-    private _screenPos = worldToScreen _grpPos;
-    private _distToCam = _grpPos distance _camPos;
-    private _render = (GVAR(showGroupMarkers) == 1 || !_isAI) && {count _screenPos > 0 && _distToCam <= _viewDistance};
+    switch _tagType do {
+        case TAGTYPE_GROUP: {
+            // grab the group infomation cache
+            private _grpCache = _x getVariable [QGVAR(grpCache),[[0,0,0],[1,1,1,1],true]];
+            _grpCache params ["_grpPos","_color","_isAI"];
 
-    // circumevent the restriction on storing controls in namespace
-    private _control = _x getVariable [QGVAR(tagControl), [controlNull]] select 0;
-    if (isNull _control && (GVAR(showGroupMarkers) == 1 || !_isAI)) then {
-        [_x] call FUNC(createGroupControl);
-        _control = _x getVariable [QGVAR(tagControl), [controlNull]] select 0;
-    };
-
-    // Render group marker
-
-    if (_render) then {
-        _control ctrlShow true;
-        TAG_NAME_CTRL(_control) ctrlShow (!_isAI && _distToCam <= 600); // Nametag
-        TAG_DETAIL_CTRL(_control) ctrlShow (!_isAI && _distToCam <= 300); // Detail
-
-        _control ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
-        _control ctrlCommit 0;
-    } else {
-        _control ctrlShow false;
-    };
-
-    // Unit / vehicle tags
-    {
-        private _isVeh = !isNull (objectParent _x);
-        private _control = _x getVariable [QGVAR(tagControl), [controlNull]] select 0;
-
-        if (_isVeh) then {
-            GVAR(vehicles) pushBackUnique (objectParent _x); // for speed reasons.
-            _control ctrlShow false;
-        } else {
-            if (alive _x) then {
-                private _pos = ([_x] call CFUNC(getPosVisual)) vectorAdd [0,0,3.1];
-                private _screenPos = worldToScreen _pos;
-                private _distToCam = _pos distance _camPos;
-
-                // circumevent the restriction on storing controls in namespace
-
-                if (count _screenPos > 0 && _distToCam <= 500) then {
-                    if (isNull _control) then {
-                        [_x] call FUNC(createUnitControl);
-                        _control = _x getVariable [QGVAR(tagControl), [controlNull]] select 0;
-                    };
-                    private _unitColor = _color;
-                    private _hasFired = _x getVariable [QGVAR(fired), 0];
-                    if (_hasFired > 0) then {
-                        _unitColor = [0.8,0.8,0.8,1];
-                        _x setVariable [QGVAR(fired), _hasFired-1];
-                    };
-
-                    _control ctrlShow true;
-                    TAG_ICON_CTRL(_control) ctrlSetTextColor _unitColor;
-                    TAG_NAME_CTRL(_control) ctrlShow (isPlayer _x && _distToCam <= 300);
-                    TAG_DETAIL_CTRL(_control) ctrlShow (isPlayer _x && _distToCam <= 150);
-
-                    _control ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
-                    _control ctrlCommit 0;
-                }
-                else {
-                    _control ctrlShow false;
-                };
-            } else {
-                //Unit is dead.
-                _x setVariable [QGVAR(tagControl), nil];
-                ctrlDelete _control;
+            // If we don't have a average pos for the group, or the time since the last the update as expired, generate a new one
+            if (count _grpPos <= 0) then {
+                _grpCache = ([_x] call FUNC(updateGroupCache));
+                _grpPos = _grpCache select 1; // update pos ASAP
             };
 
+            // check if the average pos is on the screen
+            private _screenPos = worldToScreen _grpPos;
+            private _distToCam = _grpPos distance _camPos;
+            private _render = (GVAR(showGroupMarkers) == 1 || !_isAI) && {count _screenPos > 0 && _distToCam <= _viewDistance};
+
+            // Render group marker
+            if (_render) then {
+                _x ctrlShow true;
+                TAG_NAME_CTRL(_x) ctrlShow (!_isAI && _distToCam <= 600); // Nametag
+                TAG_DETAIL_CTRL(_x) ctrlShow (!_isAI && _distToCam <= 300); // Detail
+
+                _x ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
+                _x ctrlCommit 0;
+            } else {
+                _x ctrlShow false;
+            };
         };
+        case TAGTYPE_UNIT: {
+            if (!isNull objectParent _attached) then {
+                _x ctrlShow false;
+                continue;
+            };
 
+            private _pos = ([_attached] call CFUNC(getPosVisual)) vectorAdd [0,0,3.1];
+            private _screenPos = worldToScreen _pos;
+            private _distToCam = _pos distance _camPos;
 
-    } forEach units _x;
-} forEach allGroups;
+            if (count _screenPos > 0 && _distToCam <= 500) then {
 
+                _x ctrlShow true;
+                TAG_NAME_CTRL(_x) ctrlShow (isPlayer _attached && _distToCam <= 300);
+                TAG_DETAIL_CTRL(_x) ctrlShow (isPlayer _attached && _distToCam <= 150);
 
-{
-    private _pos = ([_x] call CFUNC(getPosVisual)) vectorAdd [0,0,2 + (((boundingBox _x) select 1) select 2)];
-    // circumevent the restriction on storing controls in namespace
-    private _control = _x getVariable [QGVAR(tagControl), [controlNull]] select 0;
-    if (isNull _control) then {
-        [_x] call FUNC(createVehicleControl);
-        _control = _x getVariable [QGVAR(tagControl), [controlNull]] select 0;
-    };
-
-    private _screenPos = worldToScreen _pos;
-    private _distToCam = _pos distance _camPos;
-
-    if (alive _x && { count _screenPos > 0 } && {({alive _x} count crew _x) > 0} && {_distToCam <= 500} ) then {
-        private _color = (side _x) call CFUNC(sideToColor);
-        private _hasFired = _x getVariable [QGVAR(fired), 0];
-        if (_hasFired > 0) then {
-            _color = [0.8,0.8,0.8,1];
-            _x setVariable [QGVAR(fired), _hasFired-1];
+                _x ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
+                _x ctrlCommit 0;
+            }
+            else {
+                _x ctrlShow false;
+            };
         };
+        case TAGTYPE_VEHICLE: {
+            private _pos = ([_attached] call CFUNC(getPosVisual)) vectorAdd [0,0,2 + (((boundingBox _x) select 1) select 2)];
 
-        TAG_ICON_CTRL(_control) ctrlSetTextColor _color;
-        TAG_DETAIL_CTRL(_control) ctrlSetText format [
-            "%1 [%2]",
-            name (effectiveCommander _x),
-            count crew _x
-        ];
-        TAG_NAME_CTRL(_control) ctrlShow (_distToCam <= 300);
-        TAG_DETAIL_CTRL(_control) ctrlShow ((crew _x findIf {isPlayer _x}) >= 0 && {_distToCam <= 150});
+            private _screenPos = worldToScreen _pos;
+            private _distToCam = _pos distance _camPos;
 
-        _control ctrlShow true;
-        _control ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
-        _control ctrlCommit 0;
-    }
-    else {
-        _control ctrlShow false;
+            if (count _screenPos > 0 && {({alive _x} count crew _x) > 0} && {_distToCam <= 500} ) then {
+                TAG_NAME_CTRL(_x) ctrlShow (_distToCam <= 300);
+                TAG_DETAIL_CTRL(_x) ctrlShow (((crew _attached) findIf {isPlayer _x}) >= 0 && {_distToCam <= 150});
+
+                _x ctrlShow true;
+                _x ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
+                _x ctrlCommit 0;
+            } else {
+                _x ctrlShow false;
+            };
+        };
     };
-} forEach GVAR(vehicles);
-
-
+} forEach GVAR(tags);
 
 ////////////////////////////////////////////////////////
 // Objectives tags
@@ -158,6 +109,7 @@ private _ctrlSize = [TAG_W / 2, TAG_ICON_H / 2];
     };
 } forEach GVAR(objectives);
 
+/*
 ////////////////////////////////////////////////////////
 // Dead units (skull icon upon death)
 ////////////////////////////////////////////////////////
@@ -175,7 +127,7 @@ private _ctrlSize = [TAG_W / 2, TAG_ICON_H / 2];
     };
 } forEach GVAR(killedUnits);
 
-
+*/
 
 ////////////////////////////////////////////////////////
 // Tracers / grenade / rocket tags

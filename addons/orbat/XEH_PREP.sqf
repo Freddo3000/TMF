@@ -5,7 +5,7 @@ PREP(setup);
 PREP(setMarkerUpdateInterval);
 PREP(updateArray);
 PREP(createBriefingPage);
-PREP(getGroupMarkerData);
+PREP(getMarkerData);
 PREP(findOrbatParent);
 PREP(renameUnitAndGroups);
 PREP(loadTeams);

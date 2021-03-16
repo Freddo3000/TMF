@@ -1,3 +1,4 @@
+PREP(createTag);
 PREP(createGroupNode);
 PREP(createUnitNode);
 PREP(drawMap);
@@ -6,7 +7,6 @@ PREP(drawVehicleMarker);
 PREP(drawGroupMarker);
 PREP(handleUnitList);
 PREP(getCameraPos);
-PREP(getCardinal);
 PREP(zeusUnload);
 PREP(getGroupClusters);
 PREP(objectiveModule);

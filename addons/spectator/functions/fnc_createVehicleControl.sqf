@@ -1,19 +1,18 @@
 #include "\x\tmf\addons\spectator\script_component.hpp"
-params ["_veh"];
+params ["_display", "_veh"];
 disableSerialization;
 private _color = [1,1,1,1];
-private _control = (uiNamespace getVariable [QGVAR(display),displayNull]) ctrlCreate [QGVAR(Tag), -1];
+private _ctrl = _display ctrlCreate [QGVAR(Tag), -1];
 
-_control ctrlShow false;
+_ctrl ctrlShow false;
 
-TAG_ICON_CTRL(_control) ctrlSetText VEHICLE_ICON;
-TAG_ICON_CTRL(_control) ctrlSetTextColor _color;
-TAG_NAME_CTRL(_control) ctrlSetText name _unit;
-TAG_DETAIL_CTRL(_control) ctrlSetText "";
+TAG_ICON_CTRL(_ctrl) ctrlSetText VEHICLE_ICON;
+TAG_ICON_CTRL(_ctrl) ctrlSetTextColor _color;
+TAG_NAME_CTRL(_ctrl) ctrlSetText getText (configFile >> "CfgVehicles" >> typeof _veh >> "displayName");
+TAG_DETAIL_CTRL(_ctrl) ctrlSetText "";
 
-[_control,VEHICLE_ICON,_color] call FUNC(controlSetPicture);
-[_control,getText (configFile >> "CfgVehicles" >> typeof _veh >> "displayName")] call FUNC(controlSetText);
+_veh setVariable [QGVAR(tagControl), [_ctrl]];
+_ctrl setVariable [QGVAR(attached),_veh];
 
-_veh setVariable [QGVAR(tagControl), [_control]];
-_control setVariable [QGVAR(attached),_veh];
-GVAR(controls) pushBack _control;
+_ctrl
+

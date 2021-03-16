@@ -10,7 +10,7 @@
  * N/A
  */
 params ['_map', '_grp','_color', '_pos'];
- private _tmfGrpMarkerData = [_x] call EFUNC(orbat,getGroupMarkerData);
+ private _tmfGrpMarkerData = [_x] call EFUNC(orbat,getMarkerData);
 // if we have a framework orbat marker, use it.
 if(count _tmfGrpMarkerData >= 3) then {
     _tmfGrpMarkerData params ["_grpTexture","_gname","_grpTextureSize"];

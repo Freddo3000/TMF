@@ -16,11 +16,16 @@
 #define MAP_FONT "RobotoCondensedLight"
 #define UNIT_ICON "\a3\ui_f\data\map\markers\military\triangle_CA.paa"
 #define VEHICLE_ICON "\a3\ui_f\data\map\Markers\military\box_CA.paa"
+#define GROUP_ICON "\A3\ui_f\data\map\markers\nato\b_unknown.paa"
 #define KIA_ICON "\a3\Ui_F_Curator\Data\CfgMarkers\kia_ca.paa"
 #define CAMERA_ICON "\A3\ui_f\data\GUI\Rsc\RscDisplayMissionEditor\iconCamera_ca.paa"
 #define MISSILE_ICON "\x\tmf\addons\spectator\images\missile.paa"
 #define GRENADE_ICON "\x\tmf\addons\spectator\images\grenade.paa"
 #define SMOKE_ICON "\x\tmf\addons\spectator\images\smokegrenade.paa"
+
+#define TAGTYPE_GROUP 1
+#define TAGTYPE_UNIT 2
+#define TAGTYPE_VEHICLE 3
 
 #define IDD_TMF_SPECTATOR_DIALOG        5454
 
@@ -54,3 +59,5 @@
 #define TAG_ICON_CTRL(x) (x controlsGroupCtrl IDC_TMF_SPECTATOR_TAG_ICON)
 #define TAG_NAME_CTRL(x) (x controlsGroupCtrl IDC_TMF_SPECTATOR_TAG_NAME)
 #define TAG_DETAIL_CTRL(x) (x controlsGroupCtrl IDC_TMF_SPECTATOR_TAG_DETAIL)
+#define GET_TAG(x) (x getVariable ['GVAR(tagControl)', controlNull])
+#define GET_ATTACHED(x) (x getVariable ['GVAR(attached)', objNull])

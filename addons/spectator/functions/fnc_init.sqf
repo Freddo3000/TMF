@@ -94,8 +94,7 @@ if(isNull GVAR(unit) || !(typeOf GVAR(unit) isEqualTo QGVAR(unit))) then {
         selectPlayer _newUnit;
         GVAR(unit) = _newUnit;
     };
-}
-else {
+} else {
     selectPlayer GVAR(unit);
 };
 
@@ -120,14 +119,6 @@ if(isNil QGVAR(objectives)) then { GVAR(objectives) = []; };
 
 // UI
 GVAR(showUI) = true;
-GVAR(interfaceControls) = [
-        IDC_TMF_SPECTATOR_KILLIST, IDC_TMF_SPECTATOR_UNITLABEL,
-        IDC_TMF_SPECTATOR_UNITLIST, IDC_TMF_SPECTATOR_VISION,
-        IDC_TMF_SPECTATOR_FILTER, IDC_TMF_SPECTATOR_BUTTON,
-        IDC_TMF_SPECTATOR_TAGS, IDC_TMF_SPECTATOR_VIEW,
-        IDC_TMF_SPECTATOR_COMPASS, IDC_TMF_SPECTATOR_MUTE,
-        IDC_TMF_SPECTATOR_RADIO, IDC_TMF_SPECTATOR_MENUBACK
-];
 
 GVAR(vehicles) = [];
 GVAR(tracers) = true;
@@ -214,7 +205,7 @@ GVAR(movement_keys) = [false,false,false,false,false,false,0];
 GVAR(modifiers_keys) = [false,false,false];
 
 // Tags
-GVAR(tags) = true;
+GVAR(tagsEnabled) = true;
 GVAR(showlines) = false;
 
 GVAR(clearGroups) = false;
@@ -239,7 +230,7 @@ setCurrentChannel (GVAR(radioChannel)+5);
 } forEach [1,2,3,4,5];
 
 // Enable global if admin
-if !([] call tmf_common_fnc_isAdmin) then {
+if !([] call EFUNC(common,isAdmin)) then {
     0 enableChannel false;
 };
 

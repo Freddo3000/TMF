@@ -3,7 +3,6 @@ params ["_display"];
 
 uiNamespace setVariable [QGVAR(display), _display];
 GVAR(unitUpdate) = -1; // Force unit list to update.
-GVAR(vehicles) = [];
 with uiNamespace do {
     GVAR(display) = _display;
     GVAR(unitlabel) = _display displayCtrl IDC_TMF_SPECTATOR_UNITLABEL;
@@ -42,8 +41,104 @@ with uiNamespace do {
 
 };
 
+GVAR(tags) = [];
+if !(missionNamespace getVariable [QGVAR(classHandlersCreated), false]) then {
+    ["CAManBase", "init", {
+        if !([] call FUNC(isOpen)) exitWith {};
 
+        params ["_unit"];
 
+        private _display = uiNamespace getVariable [QGVAR(display), displayNull];
+        [_display, _unit] call FUNC(createTag);
+        [_display, group _unit] call FUNC(createTag);
+
+        private _veh = objectParent _unit;
+        if (!isNull _veh) then {
+            [_display, _unit] call FUNC(createTag);
+        };
+
+    }] call CBA_fnc_addClassEventHandler;
+
+    // Create tag for vehicle upon getting in, and update crew count and effectiveCommander
+    /*["AllVehicles", "getInMan", {
+        if !([] call FUNC(isOpen)) exitWith {};
+        params ["","","_veh"];
+
+        private _display = uiNamespace getVariable [QGVAR(display), displayNull];
+        private _ctrl = [_display, _veh] call FUNC(createTag);
+
+        TAG_DETAIL_CTRL(_ctrl) ctrlSetText format [
+            "%1 [%2]",
+            name effectiveCommander _veh,
+            count crew _veh
+        ];
+    }] call CBA_fnc_addClassEventHandler;
+
+    // Update crew count or delete tag when dismounting vehicle
+    ["AllVehicles", "GetOutMan", {
+        if !([] call FUNC(isOpen)) exitWith {};
+        params ["_unit","","_veh"];
+
+        if (((crew _veh) - [_unit]) isEqualTo []) exitWith {
+            ctrlDelete (_veh getVariable [QGVAR(tagControl), controlNull]);
+        };
+
+        private _display = uiNamespace getVariable [QGVAR(display), displayNull];
+        private _ctrl = [_display, _veh] call FUNC(createTag);
+
+        TAG_DETAIL_CTRL(_ctrl) ctrlSetText format [
+            "%1 [%2]",
+            name effectiveCommander _veh,
+            count crew _veh
+        ];
+    }] call CBA_fnc_addClassEventHandler;
+
+    addMissionEventHandler ["EntityKilled",{
+        params ["_deadMan","_killer","_instigator"];
+
+        ctrlDelete _deadMan getVariable [QGVAR(tagControl),controlNull];
+
+        if (isNull _instigator) then {_instigator = UAVControl vehicle _killer select 0};
+        if (isNull _instigator) then {_instigator = _killer};
+
+        if(isNull _instigator || _instigator == _deadMan) then {
+            _instigator = _deadMan getVariable [QGVAR(lastDamage),objNull];
+        };
+
+        private _veh = objectParent _instigator;
+        if (isNull _veh) then {
+
+        } else {
+            GVAR(killedUnits) pushBack [
+                if (isPlayer _deadMan) then [{name _deadMan}, {[configFile >> "CfgWeapons" >> typeOf _deadMan] call BIS_fnc_displayName}],
+                time,
+                if (isPlayer _instigator) then [{name _instigator}, {[configFile >> "CfgWeapons" >> typeOf _instigator] call BIS_fnc_displayName}],
+                if (isNull _veh) then [{
+                    [configFile >> "CfgWeapons" >> currentWeapon _instigator] call BIS_fnc_displayName
+                },{
+                    [configFile >> "CfgWeapons" >> currentWeaponTurret (_veh unitTurret _instigator)] call BIS_fnc_displayName
+                }]
+            ];
+        };
+
+        GVAR(killList_forceUpdate) = true;
+    }];
+    ["AllVehicles", "fired", {if([] call FUNC(isOpen)) then { _this call FUNC(onFired)}}] call CBA_fnc_addClassEventHandler;
+    ["AllVehicles", "hit", {if([] call FUNC(isOpen)) then {(_this select 0) setVariable [QGVAR(lastDamage),(_this select 3)]}}] call CBA_fnc_addClassEventHandler;
+    */
+
+    GVAR(classHandlersCreated) = true;
+};
+
+{
+    [_display, _x] call FUNC(createTag);
+    [_display, group _x] call FUNC(createTag);
+
+    private _veh = objectParent _x;
+    if (!isNull _veh) then {
+        [_display, _x] call FUNC(createTag);
+    };
+} forEach allUnits;
 
 if(!GVAR(canSpectateAllSides)) then {
     GVAR(sides) = [GVAR(EntrySide)];

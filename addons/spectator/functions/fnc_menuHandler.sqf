@@ -57,12 +57,12 @@ switch (_button) do {
 
     // Tags button
     case "tags" : {
-        GVAR(tags) = !GVAR(tags);
+        GVAR(tagsEnabled) = !GVAR(tagsEnabled);
 
 
         private _tooltip = "ENABLE TAGS";
 
-        if(GVAR(tags)) then {
+        if(GVAR(tagsEnabled)) then {
             _tooltip = "DISABLE TAGS";
         } else {
             // Remove controls.
