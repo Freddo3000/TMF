@@ -42,6 +42,7 @@ with uiNamespace do {
 };
 
 GVAR(tags) = [];
+GVAR(sm) = [configFile >> QGVAR(tagStatemachine)] call CBA_statemachine_fnc_createFromConfig;
 if !(missionNamespace getVariable [QGVAR(classHandlersCreated), false]) then {
     ["CAManBase", "init", {
         if !([] call FUNC(isOpen)) exitWith {};
@@ -50,12 +51,6 @@ if !(missionNamespace getVariable [QGVAR(classHandlersCreated), false]) then {
 
         private _display = uiNamespace getVariable [QGVAR(display), displayNull];
         [_display, _unit] call FUNC(createTag);
-        [_display, group _unit] call FUNC(createTag);
-
-        private _veh = objectParent _unit;
-        if (!isNull _veh) then {
-            [_display, _unit] call FUNC(createTag);
-        };
 
     }] call CBA_fnc_addClassEventHandler;
 

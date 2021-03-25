@@ -13,14 +13,6 @@ if(typeOf _unit == "seagull") then {
     }, [_unit], 5] call CBA_fnc_waitAndExecute;
 };
 
-// On Re-Open purge any old controls (as they will exist on an old display)
-if (!isNil QGVAR(controls)) then {
-    {_x setVariable [QGVAR(tagControl),nil];} forEach allUnits;
-    {_x setVariable [QGVAR(tagControl),nil];} forEach allGroups;
-    {ctrlDelete _x} forEach GVAR(controls);
-    GVAR(controls) = [];
-};
-
 if(!isNil QGVAR(unit) && {player == GVAR(unit)}) exitWith {
     createDialog QGVAR(dialog);
 };
@@ -248,7 +240,6 @@ GVAR(lastControlIndex) = 0;
 
 GVAR(perFrameHandle) = [FUNC(perFrameHandler)] call CBA_fnc_addPerFrameHandler;
 GVAR(handleCameraHandle) = [FUNC(handleCamera)] call CBA_fnc_addPerFrameHandler;
-GVAR(processData) = [FUNC(processData), 1] call CBA_fnc_addPerFrameHandler;
 if(isNil QGVAR(drawEvent)) then {
     // We use the Draw3D here due to it only running when a user can see it.
     GVAR(drawEvent) = addMissionEventHandler ["Draw3D",{ [] call FUNC(drawTags); }];

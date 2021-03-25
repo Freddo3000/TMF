@@ -19,6 +19,6 @@ if(count _tmfGrpMarkerData >= 3) then {
     if(_grpTextureSize != "") then { _map drawIcon [_grpTextureSize, [1,1,1,1],_pos, 32, 32, 0,"", 0, 0.04 , MAP_FONT]; };
 }
 else { // here we draw the default icons if TW grp makers arent present
-    _map drawIcon ["\A3\ui_f\data\map\markers\nato\b_unknown.paa", _color,_pos, 32, 32, 0,"", 0, 0.04 , MAP_FONT];
+    _map drawIcon [GROUP_ICON, _color,_pos, 32, 32, 0,"", 0, 0.04 , MAP_FONT];
     _map drawIcon ["#(argb,8,8,3)color(0,0,0,0)", [1,1,1,1], _pos, 32, 32, 0,groupID _x, 0, 0.04 , MAP_FONT];
 };

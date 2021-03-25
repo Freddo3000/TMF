@@ -1,78 +1,56 @@
 #include "\x\tmf\addons\spectator\script_component.hpp"
-params ["_button","_args"];
 
+params ["_button","_args"];
 _args params ["_control"];
 
-
 switch (_button) do {
-
-
     // Sidefilter button
     case "sidefilter": {
-      GVAR(sides_button_state) = (GVAR(sides_button_state) + 1);
+        GVAR(sides_button_state) = (GVAR(sides_button_state) + 1);
 
-      // if above array size, restart at zero
-      if(GVAR(sides_button_state) > (count GVAR(sides_button_mode))-1) then {
-        GVAR(sides_button_state) = 0;
-      };
+        // if above array size, restart at zero
+        if(GVAR(sides_button_state) > (count GVAR(sides_button_mode))-1) then {
+          GVAR(sides_button_state) = 0;
+        };
 
 
-      GVAR(sides) = GVAR(sides_button_mode) select GVAR(sides_button_state);
+        GVAR(sides) = GVAR(sides_button_mode) select GVAR(sides_button_state);
 
-      if(count GVAR(sides) == 1) then {
-            private _side = GVAR(sides) select 0;
-            _control ctrlSetTextColor (_side call CFUNC(sideToColor));
-            _control ctrlSetText (_side call CFUNC(sideToTexture));
-      }
-      else
-      {
-          _control ctrlSetTextColor [1,1,1,1];
-          _control ctrlSetText (sideLogic call CFUNC(sideToTexture));
-      };
+        if(count GVAR(sides) == 1) then {
+              private _side = GVAR(sides) select 0;
+              _control ctrlSetTextColor (_side call CFUNC(sideToColor));
+              _control ctrlSetText (_side call CFUNC(sideToTexture));
+        }
+        else
+        {
+            _control ctrlSetTextColor [1,1,1,1];
+            _control ctrlSetText (sideLogic call CFUNC(sideToTexture));
+        };
 
-      _control ctrlSetTooltip (GVAR(sides_button_strings) select GVAR(sides_button_state) );
+        _control ctrlSetTooltip (GVAR(sides_button_strings) select GVAR(sides_button_state) );
 
-      GVAR(clearGroups) = true;
+        GVAR(clearGroups) = true;
     };
-
-
-
 
     // AI button
     case "disableAI": {
-      GVAR(playersOnly) = !GVAR(playersOnly);
+        GVAR(playersOnly) = !GVAR(playersOnly);
 
-      _text = "\A3\ui_f\data\gui\Rsc\RscDisplayMultiplayerSetup\enabledai_ca.paa";
-      _messsage = "AI + PLAYERS";
+        _text = "\A3\ui_f\data\gui\Rsc\RscDisplayMultiplayerSetup\enabledai_ca.paa";
+        _messsage = "AI + PLAYERS";
 
-      if(GVAR(playersOnly)) then {_messsage = "PLAYERS ONLY";_text = "\A3\ui_f\data\gui\Rsc\RscDisplayMultiplayerSetup\disabledai_ca.paa";};
+        if(GVAR(playersOnly)) then {_messsage = "PLAYERS ONLY";_text = "\A3\ui_f\data\gui\Rsc\RscDisplayMultiplayerSetup\disabledai_ca.paa";};
 
-      GVAR(clearGroups) = true;
+        GVAR(clearGroups) = true;
 
-      _control ctrlSetText ( _text);
-      _control ctrlSetTooltip _messsage;
+        _control ctrlSetText _text;
+        _control ctrlSetTooltip _messsage;
     };
-
-
 
     // Tags button
     case "tags" : {
         GVAR(tagsEnabled) = !GVAR(tagsEnabled);
-
-
-        private _tooltip = "ENABLE TAGS";
-
-        if(GVAR(tagsEnabled)) then {
-            _tooltip = "DISABLE TAGS";
-        } else {
-            // Remove controls.
-            {_x setVariable [QGVAR(tagControl),nil];} forEach allUnits;
-            {_x setVariable [QGVAR(tagControl),nil];} forEach allGroups;
-            {ctrlDelete _x} forEach GVAR(controls);
-            GVAR(controls) = [];
-        };
-
-        _control ctrlSetTooltip _tooltip;
+        _control ctrlSetTooltip (["DISABLE TAGS", "ENABLE TAGS"] select GVAR(tagsEnabled));
     };
     case "mute" : {
       [] call acre_sys_core_fnc_toggleHeadset;
@@ -96,14 +74,13 @@ switch (_button) do {
         };
         _i = (GVAR(visionMode))+1;
         if(_i > 2) then {_i = 0};
-    if(isNil "_control" || {isNull _control}) then {_control = uinamespace getVariable [QGVAR(vision),controlNull];};
+        if(isNil "_control" || {isNull _control}) then {_control = uinamespace getVariable [QGVAR(vision),controlNull];};
         _control ctrlSetTooltip format ["Switch to %1", GVAR(visionMode_strings) select _i ];
     };
     case "camera" : {
         if( count (GVAR(allowed_modes) select {_x}) <= 0) exitWith {
             // we leave because otherwise it will loop forever...
         };
-
 
         private _nextMode = GVAR(mode) + 1;
         if(_nextMode > 2) then {
@@ -135,11 +112,6 @@ switch (_button) do {
             };
         };
         [] call FUNC(setTarget);
-
-
-
-
-
 
         _nextMode = GVAR(mode) + 1;
         if(_nextMode > 2) then {

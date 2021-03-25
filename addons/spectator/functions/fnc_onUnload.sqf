@@ -4,6 +4,7 @@ disableSerialization;
 params ["_display", "_exitCode"];
 
 GVAR(camera) cameraEffect ["TERMINATE","BACK"];
+[GVAR(sm)] call CBA_statemachine_fnc_delete;
 
 ["MouseButtonDown", GVAR(mouseHandlers) # 0] call CBA_fnc_removeDisplayHandler;
 ["MouseButtonUp", GVAR(mouseHandlers) # 1] call CBA_fnc_removeDisplayHandler;

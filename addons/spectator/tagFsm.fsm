@@ -1,43 +1,64 @@
 class GVAR(tagStatemachine) {
-    list = QUOTE(missionNamespace getVariable [QQGVAR(tags), []]);
-    skipNull = 1;
+    list = QUOTE(missionNamespace getVariable [ARR_2(QQGVAR(tags), [])]);
+    skipNull = 0;
     class START {
-
+        #ifdef DEBUG_MODE_FULL
+        onState = QUOTE(LOG_2(""Entered SM: _ctrl=%1 _attached=%2"",_this,GET_ATTACHED(_this)));
+        #endif
         class Is_Group {
             targetState = QUOTE(Group);
             condition = QUOTE(IS_GROUP(GET_ATTACHED(_this)));
+            #ifdef DEBUG_MODE_FULL
+            onTransition = QUOTE(LOG_2(""Is group: _ctrl=%1 _attached=%2"",_this,GET_ATTACHED(_this)));
+            #endif
         };
         class Is_Unit {
             targetState = QUOTE(Unit);
             condition = QUOTE(GET_ATTACHED(_this) isKindof 'CAManBase');
+            #ifdef DEBUG_MODE_FULL
+            onTransition = QUOTE(LOG_2(""Is unit: _ctrl=%1 _attached=%2"",_this,GET_ATTACHED(_this)));
+            #endif
         };
         class Is_Vehicle {
             targetState = QUOTE(Vehicle);
             condition = QUOTE(true);
+            #ifdef DEBUG_MODE_FULL
+            onTransition = QUOTE(LOG_2(""Is vehicle: _ctrl=%1 _attached=%2"",_this,GET_ATTACHED(_this)));
+            #endif
         };
     };
     class Group {
-
+        onState = QUOTE(\
+        	private _group = GET_ATTACHED(_this); \
+        	[_group] call FUNC(updateGroupCache); \
+        );
         class Group_Empty_or_n {
             targetState = QUOTE(EXIT);
             condition = QUOTE(((units GET_ATTACHED(_this)) findIf {alive _x}) isEqualTo -1);
         };
     };
     class Unit {
-
+        onState = QUOTE(\
+        	private _unit = GET_ATTACHED(_this); \
+        	if !(_this getVariable [ARR_2(QQGVAR(colorForced), false)]) then { \
+        		private _side = if (lifeState _unit == 'INCAPACITATED') then [ARR_2({civilian},{side _unit})]; \
+        		TAG_ICON_CTRL(_this) ctrlSetTextColor (_side call CFUNC(sideToColor)); \
+        	}; \
+        );
         class Unit_dead_or_nul {
             targetState = QUOTE(EXIT);
             condition = QUOTE(!alive GET_ATTACHED(_this));
         };
         class Vehicle_Changed {
             targetState = QUOTE(Unit);
-            condition = QUOTE(objectParent GET_ATTACHED(_this) != _unit getVariable [ARR_2(QQGVAR(oldVehicle), objectNull)]);
+            condition = QUOTE((objectParent GET_ATTACHED(_this)) isNotEqualTo (_this getVariable [ARR_2(QQGVAR(attachedParent), objNull)]));
             onTransition = QUOTE(\
-               private _unit = GET_ATTACHED(_this);\
-            	private _newVehicle = objectParent _unit;\
-            \
-            	[uiNamespace getVariable [ARR_2(QQGVAR(display), displayNull)], _newVehicle] call FUNC(createTag);\
-            	_unit setVariable [ARR_2(QQGVAR(oldVehicle), _newVehicle)];\
+            	private _newVehicle = objectParent GET_ATTACHED(_this);\
+            	[ARR_2(\
+            		uiNamespace getVariable [ARR_2(QQGVAR(display), displayNull)], \
+            		_newVehicle \
+            	)] call FUNC(createTag);\
+            	_this setVariable [ARR_2(QQGVAR(attachedParent), _newVehicle)];\
             );
 
         };
@@ -48,7 +69,10 @@ class GVAR(tagStatemachine) {
                private _unit = GET_ATTACHED(_this);\
             	private _newGroup = group _unit;\
             \
-            	[uiNamespace getVariable [ARR_2(QQGVAR(display), displayNull)], _newGroup] call FUNC(createTag);\
+            	[ARR_2(\
+            		uiNamespace getVariable [ARR_2(QQGVAR(display), displayNull)], \
+            		_newGroup \
+            	)] call FUNC(createTag);\
             	_unit setVariable [ARR_2(QQGVAR(oldGroup), _newGroup)];\
             );
 
@@ -58,12 +82,19 @@ class GVAR(tagStatemachine) {
         onState = QUOTE(\
         	private _veh = GET_ATTACHED(_this);\
         	\
-        	TAG_DETAIL_CTRL(_this) ctrlSetText FORMAT_3(\
-        	  "%1 [%2]",\
+        	TAG_DETAIL_CTRL(_this) ctrlSetText FORMAT_2(\
+        	  '%1 [%2]',\
         	  name effectiveCommander _veh,\
         	  count ((crew _veh) select {alive _x})\
         	);\
+        	\
+        	if !(_this getVariable [ARR_2(QQGVAR(colorForced), false)]) then { \
+        		private _unit = effectiveCommander GET_ATTACHED(_this); \
+        		private _side = if (lifeState _unit == 'INCAPACITATED') then [ARR_2({civilian},{side _unit})]; \
+        		TAG_ICON_CTRL(_this) ctrlSetTextColor (_side call CFUNC(sideToColor)); \
+        	}; \
         );
+
         class Vehicle_empty_or {
             targetState = QUOTE(EXIT);
             condition = QUOTE(((crew GET_ATTACHED(_this)) findIf {alive _x}) isEqualTo -1);
@@ -71,9 +102,8 @@ class GVAR(tagStatemachine) {
     };
     class EXIT {
         onStateEntered = QUOTE(\
-          private _arr = missionNamespace getvariable [QQGVAR(tags), []];\
-          _arr deleteAt (_arr find _this);\
-          ctrlDelete _this;\
+        	GVAR(tags) deleteAt (GVAR(tags) find _this);\
+        	ctrlDelete _this;\
         );
     };
 };

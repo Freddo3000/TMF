@@ -24,7 +24,7 @@ class GraphItems
 			class ItemInfo
 			{
 				Id=2;
-				StateTab=1;
+				InitCode="#ifdef DEBUG_MODE_FULL" \n "onState = QUOTE(LOG_2(""""Entered SM: _ctrl=%1 _attached=%2"""",_this,GET_ATTACHED(_this)));" \n "#endif";
 			};
 		};
 	};
@@ -53,6 +53,7 @@ class GraphItems
 				Id=3;
 				Priority=2;
 				Condition="IS_GROUP(GET_ATTACHED(_this))";
+				Action="" \n "#ifdef DEBUG_MODE_FULL" \n "onTransition = QUOTE(LOG_2(""""Is group: _ctrl=%1 _attached=%2"""",_this,GET_ATTACHED(_this)));" \n "#endif";
 				ConditionTab=1;
 			};
 		};
@@ -82,6 +83,8 @@ class GraphItems
 				Id=4;
 				Priority=1;
 				Condition="GET_ATTACHED(_this) isKindof 'CAManBase'";
+				Action="" \n "#ifdef DEBUG_MODE_FULL" \n "onTransition = QUOTE(LOG_2(""""Is unit: _ctrl=%1 _attached=%2"""",_this,GET_ATTACHED(_this)));" \n "#endif";
+				ConditionTab=1;
 			};
 		};
 	};
@@ -109,6 +112,8 @@ class GraphItems
 			{
 				Id=5;
 				Condition="true";
+				Action="" \n "#ifdef DEBUG_MODE_FULL" \n "onTransition = QUOTE(LOG_2(""""Is vehicle: _ctrl=%1 _attached=%2"""",_this,GET_ATTACHED(_this)));" \n "#endif";
+				ConditionTab=1;
 			};
 		};
 	};
@@ -134,12 +139,13 @@ class GraphItems
 			class ItemInfo
 			{
 				Id=6;
+				InitCode="onState = QUOTE(\" \n "	private _group = GET_ATTACHED(_this); \" \n "	[_group] call FUNC(updateGroupCache); \" \n ");";
 			};
 		};
 	};
 	class Item5
 	{
-		Flags=250;
+		Flags=4346;
 		BasicText="";
 		Left=-150;
 		Top=0;
@@ -159,7 +165,7 @@ class GraphItems
 			class ItemInfo
 			{
 				Id=7;
-				StateTab=1;
+				InitCode="onState = QUOTE(\" \n "	private _unit = GET_ATTACHED(_this); \" \n "	if !(_this getVariable [ARR_2(QQGVAR(colorForced), false)]) then { \" \n "		private _side = if (lifeState _unit == 'INCAPACITATED') then [ARR_2({civilian},{side _unit})]; \" \n "		TAG_ICON_CTRL(_this) ctrlSetTextColor (_side call CFUNC(sideToColor)); \" \n "	}; \" \n ");";
 			};
 		};
 	};
@@ -185,7 +191,7 @@ class GraphItems
 			class ItemInfo
 			{
 				Id=8;
-				InitCode="onState = QUOTE(\" \n "	private _veh = GET_ATTACHED(_this);\" \n "	\" \n "	TAG_DETAIL_CTRL(_this) ctrlSetText FORMAT_3(\" \n "	  ""%1 [%2]"",\" \n "	  name effectiveCommander _veh,\" \n "	  count ((crew _veh) select {alive _x})\" \n "	);\" \n ");";
+				InitCode="onState = QUOTE(\" \n "	private _veh = GET_ATTACHED(_this);\" \n "	\" \n "	TAG_DETAIL_CTRL(_this) ctrlSetText FORMAT_2(\" \n "	  '%1 [%2]',\" \n "	  name effectiveCommander _veh,\" \n "	  count ((crew _veh) select {alive _x})\" \n "	);\" \n "	\" \n "	if !(_this getVariable [ARR_2(QQGVAR(colorForced), false)]) then { \" \n "		private _unit = effectiveCommander GET_ATTACHED(_this); \" \n "		private _side = if (lifeState _unit == 'INCAPACITATED') then [ARR_2({civilian},{side _unit})]; \" \n "		TAG_ICON_CTRL(_this) ctrlSetTextColor (_side call CFUNC(sideToColor)); \" \n "	}; \" \n ");" \n "";
 			};
 		};
 	};
@@ -239,7 +245,7 @@ class GraphItems
 			class ItemInfo
 			{
 				Id=12;
-				InitCode="onStateEntered = QUOTE(\" \n "  private _arr = missionNamespace getvariable [QQGVAR(tags), []];\" \n "  _arr deleteAt (_arr find _this);\" \n "  ctrlDelete _this;\" \n ");";
+				InitCode="onStateEntered = QUOTE(\" \n "	GVAR(tags) deleteAt (GVAR(tags) find _this);\" \n "	ctrlDelete _this;\" \n ");";
 			};
 		};
 	};
@@ -267,7 +273,7 @@ class GraphItems
 			{
 				Id=13;
 				Condition="group GET_ATTACHED(_this) != _unit getVariable [ARR_2(QQGVAR(oldGroup), grpNull)]";
-				Action="" \n "onTransition = QUOTE(\" \n "   private _unit = GET_ATTACHED(_this);\" \n "	private _newGroup = group _unit;\" \n "\" \n "	[uiNamespace getVariable [ARR_2(QQGVAR(display), displayNull)], _newGroup] call FUNC(createTag);\" \n "	_unit setVariable [ARR_2(QQGVAR(oldGroup), _newGroup)];\" \n ");" \n "";
+				Action="" \n "onTransition = QUOTE(\" \n "   private _unit = GET_ATTACHED(_this);\" \n "	private _newGroup = group _unit;\" \n "\" \n "	[ARR_2(\" \n "		uiNamespace getVariable [ARR_2(QQGVAR(display), displayNull)], \" \n "		_newGroup \" \n "	)] call FUNC(createTag);\" \n "	_unit setVariable [ARR_2(QQGVAR(oldGroup), _newGroup)];\" \n ");" \n "";
 				ConditionTab=1;
 			};
 		};
@@ -324,8 +330,8 @@ class GraphItems
 			{
 				Id=15;
 				Priority=1;
-				Condition="objectParent GET_ATTACHED(_this) != _unit getVariable [ARR_2(QQGVAR(oldVehicle), objectNull)]";
-				Action="" \n "onTransition = QUOTE(\" \n "   private _unit = GET_ATTACHED(_this);\" \n "	private _newVehicle = objectParent _unit;\" \n "\" \n "	[uiNamespace getVariable [ARR_2(QQGVAR(display), displayNull)], _newVehicle] call FUNC(createTag);\" \n "	_unit setVariable [ARR_2(QQGVAR(oldVehicle), _newVehicle)];\" \n ");" \n "";
+				Condition="(objectParent GET_ATTACHED(_this)) isNotEqualTo (_this getVariable [ARR_2(QQGVAR(attachedParent), objNull)])";
+				Action="" \n "onTransition = QUOTE(\" \n "	private _newVehicle = objectParent GET_ATTACHED(_this);\" \n "	[ARR_2(\" \n "		uiNamespace getVariable [ARR_2(QQGVAR(display), displayNull)], \" \n "		_newVehicle \" \n "	)] call FUNC(createTag);\" \n "	_this setVariable [ARR_2(QQGVAR(attachedParent), _newVehicle)];\" \n ");" \n "";
 				ConditionTab=1;
 			};
 		};
@@ -549,12 +555,12 @@ class Globals
 		class Item0
 		{
 			name="skipnull";
-			value="1";
+			value="0";
 		};
 		class Item1
 		{
 			name="list";
-			value="missionNamespace getVariable [QQGVAR(tags), []]";
+			value="missionNamespace getVariable [ARR_2(QQGVAR(tags), [])]";
 		};
 	};
 	class DefaultLink
@@ -565,11 +571,11 @@ class Globals
 	DefaultLinkColorFromSelected=6316287;
 	DefaultLinkColorToSelected=6356832;
 	DefaultLinkUseCustom=1;
-	PZoomLeft=-744.87231;
-	PZoomRight=265.28406;
-	PZoomBottom=466.37128;
-	PZoomTop=-391.78961;
-	Clxs=1070;
+	PZoomLeft=-430.89951;
+	PZoomRight=290.60666;
+	PZoomBottom=363.65656;
+	PZoomTop=-296.15143;
+	Clxs=994;
 	Clys=909;
 	Aspect=1;
 };
@@ -578,12 +584,12 @@ class Window
 	Flags=2;
 	MaxPosX=-1;
 	MaxPosY=-1;
-	MinPosX=-1;
-	MinPosY=-1;
-	Left=738;
-	Top=127;
-	Right=1590;
-	Bottom=844;
+	MinPosX=-32000;
+	MinPosY=-32000;
+	Left=677;
+	Top=-16;
+	Right=1529;
+	Bottom=685;
 	ShowCmd=3;
-	SplitPos=1088;
+	SplitPos=1012;
 };

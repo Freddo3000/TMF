@@ -13,7 +13,7 @@ if(_rightButton && !_leftButton) then {
 
 private _oldcam = GVAR(camera);
 
-GVAR(camera) = switch (tmf_spectator_mode) do {
+GVAR(camera) = switch (GVAR(mode)) do {
     case 0: { GVAR(followCam) };
     case 1: {
         if(GVAR(camera) != GVAR(freeCam)) then {

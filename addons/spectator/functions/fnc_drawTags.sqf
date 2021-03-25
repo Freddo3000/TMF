@@ -13,33 +13,22 @@ private _ctrlSize = [TAG_W / 2, TAG_ICON_H / 2];
 
 {
     private _attached = _x getVariable [QGVAR(attached), objNull];
-    if (isNull _attached) then {
-        ctrlDelete _x;
-    };
     private _tagType = _x getVariable [QGVAR(tagType), -1];
 
     switch _tagType do {
         case TAGTYPE_GROUP: {
             // grab the group infomation cache
-            private _grpCache = _x getVariable [QGVAR(grpCache),[[0,0,0],[1,1,1,1],true]];
-            _grpCache params ["_grpPos","_color","_isAI"];
-
-            // If we don't have a average pos for the group, or the time since the last the update as expired, generate a new one
-            if (count _grpPos <= 0) then {
-                _grpCache = ([_x] call FUNC(updateGroupCache));
-                _grpPos = _grpCache select 1; // update pos ASAP
-            };
+            (_x getVariable [QGVAR(grpCache),[[0,0,0],[1,1,1,1],true]]) params ["_grpPos","_color","_isAI"];
 
             // check if the average pos is on the screen
             private _screenPos = worldToScreen _grpPos;
             private _distToCam = _grpPos distance _camPos;
-            private _render = (GVAR(showGroupMarkers) == 1 || !_isAI) && {count _screenPos > 0 && _distToCam <= _viewDistance};
 
             // Render group marker
-            if (_render) then {
+            if (_screenPos isNotEqualTo [] && _distToCam <= _viewDistance) then {
                 _x ctrlShow true;
-                TAG_NAME_CTRL(_x) ctrlShow (!_isAI && _distToCam <= 600); // Nametag
-                TAG_DETAIL_CTRL(_x) ctrlShow (!_isAI && _distToCam <= 300); // Detail
+                TAG_NAME_CTRL(_x) ctrlShow (_distToCam <= 600);
+                TAG_DETAIL_CTRL(_x) ctrlShow (_distToCam <= 300);
 
                 _x ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
                 _x ctrlCommit 0;
@@ -50,37 +39,37 @@ private _ctrlSize = [TAG_W / 2, TAG_ICON_H / 2];
         case TAGTYPE_UNIT: {
             if (!isNull objectParent _attached) then {
                 _x ctrlShow false;
-                continue;
-            };
+            } else {
+                private _pos = ([_attached] call CFUNC(getPosVisual)) vectorAdd [0,0,3.1];
+                private _screenPos = worldToScreen _pos;
+                private _distToCam = _pos distance _camPos;
 
-            private _pos = ([_attached] call CFUNC(getPosVisual)) vectorAdd [0,0,3.1];
-            private _screenPos = worldToScreen _pos;
-            private _distToCam = _pos distance _camPos;
+                if (_screenPos isNotEqualTo [] && _distToCam <= 500) then {
 
-            if (count _screenPos > 0 && _distToCam <= 500) then {
+                    _x ctrlShow true;
+                    TAG_NAME_CTRL(_x) ctrlShow (_distToCam <= 300);
+                    TAG_DETAIL_CTRL(_x) ctrlShow (_distToCam <= 150);
 
-                _x ctrlShow true;
-                TAG_NAME_CTRL(_x) ctrlShow (isPlayer _attached && _distToCam <= 300);
-                TAG_DETAIL_CTRL(_x) ctrlShow (isPlayer _attached && _distToCam <= 150);
-
-                _x ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
-                _x ctrlCommit 0;
-            }
-            else {
-                _x ctrlShow false;
+                    _x ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
+                    _x ctrlCommit 0;
+                }
+                else {
+                    _x ctrlShow false;
+                };
             };
         };
         case TAGTYPE_VEHICLE: {
-            private _pos = ([_attached] call CFUNC(getPosVisual)) vectorAdd [0,0,2 + (((boundingBox _x) select 1) select 2)];
+            private _pos = ([_attached] call CFUNC(getPosVisual)) vectorAdd [0,0,2 + (((boundingBox _attached) select 1) select 2)];
 
             private _screenPos = worldToScreen _pos;
             private _distToCam = _pos distance _camPos;
 
-            if (count _screenPos > 0 && {({alive _x} count crew _x) > 0} && {_distToCam <= 500} ) then {
-                TAG_NAME_CTRL(_x) ctrlShow (_distToCam <= 300);
-                TAG_DETAIL_CTRL(_x) ctrlShow (((crew _attached) findIf {isPlayer _x}) >= 0 && {_distToCam <= 150});
-
+            if (_screenPos isNotEqualTo [] && {_distToCam <= 500} ) then {
                 _x ctrlShow true;
+
+                TAG_NAME_CTRL(_x) ctrlShow (_distToCam <= 300);
+                TAG_DETAIL_CTRL(_x) ctrlShow (_distToCam <= 150);
+
                 _x ctrlSetPosition [_screenPos # 0 - _ctrlSize # 0, _screenPos # 1 - _ctrlSize # 1];
                 _x ctrlCommit 0;
             } else {
@@ -154,6 +143,3 @@ if(!GVAR(tracers)) exitWith {};
         [_posArray,[1,0,0,0.7]] call CFUNC(drawLines);
     };
 } forEach GVAR(rounds);
-
-// emit event
-[QGVAR(draw3D), [_camPos]] call CBA_fnc_localEvent;

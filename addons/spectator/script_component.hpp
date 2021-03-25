@@ -1,4 +1,5 @@
 #define COMPONENT spectator
+#define DEBUG_MODE_FULL 1
 
 #include "\x\tmf\addons\main\script_mod.hpp"
 #include "\x\tmf\addons\main\script_macros.hpp"
